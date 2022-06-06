@@ -1,0 +1,377 @@
+;*********************************************************************
+;SABLONA PRO FAKTA
+;*********************************************************************
+(deftemplate kolo
+  (slot vyrobce)
+  (slot nazev)
+  (slot typ_kola); HORSKE/SILNICNI/DOWNHILL/GRAVEL
+  (slot provedeni_kol)
+  (slot cena); V KC
+)
+
+
+;*********************************************************************
+;FAKTA
+;*********************************************************************
+(deffacts moje_kola
+  (kolo(vyrobce KELLYS)
+       (nazev Spider_10_29)
+       (typ_kola Horske)
+       (provedeni_kol 29)
+       (cena 12490)
+ )
+  (kolo(vyrobce GIANT)
+       (nazev Talon_29_5)
+       (typ_kola Horske)
+       (provedeni_kol 29)
+       (cena 15999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev Trail_29_8)
+       (typ_kola Horske)
+       (provedeni_kol 29)
+       (cena 20999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev Trail_SE_3_IOR)
+       (typ_kola Horske)
+       (provedeni_kol 29)
+       (cena 35999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev Scalpel_HT_Carbon_4_ARD)
+       (typ_kola Horske)
+       (provedeni_kol 29)
+       (cena 68999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev Scalpel_HT_Hi-Mod_1_CRB)
+       (typ_kola Horske)
+       (provedeni_kol 180999)
+       (cena 180999)
+ )
+  (kolo(vyrobce MARIN)
+       (nazev Rift_zone_29_1)
+       (typ_kola Downhill)
+       (provedeni_kol 29)
+       (cena 46999)
+ )
+  (kolo(vyrobce GT)
+       (nazev Sensor_29_sport)
+       (typ_kola Downhill)
+       (provedeni_kol 29)
+       (cena 59999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev Habit_5_BLK)
+       (typ_kola Downhill)
+       (provedeni_kol 29)
+       (cena 66999)
+ )
+  (kolo(vyrobce GIANT)
+       (nazev Reign_29_Metal)
+       (typ_kola Downhill)
+       (provedeni_kol 29)
+       (cena 87999)
+ )
+  (kolo(vyrobce IBIS)
+       (nazev Exie_29_Cheat-O)
+       (typ_kola Downhill)
+       (provedeni_kol 29)
+       (cena 354999)
+ )
+  (kolo(vyrobce GIANT)
+       (nazev FastRoad_SL_2)
+       (typ_kola Silnicni)
+       (provedeni_kol 700_X_32)
+       (cena 25999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev Synapse_tiagra_mtg)
+       (typ_kola Silnicni)
+       (provedeni_kol tubeless)
+       (cena 33999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev SuperSix_Evo_Ultegra)
+       (typ_kola Silnicni)
+       (provedeni_kol tubeless)
+       (cena 124999)
+ )
+  (kolo(vyrobce ROCK_MACHINE)
+       (nazev GravelRide_200)
+       (typ_kola Gravel)
+       (provedeni_kol 28)
+       (cena 23999)
+ )
+  (kolo(vyrobce GIANT)
+       (nazev Revolt_2)
+       (typ_kola Gravel)
+       (provedeni_kol 28)
+       (cena 34999)
+ )
+  (kolo(vyrobce SUPERIOR)
+       (nazev X-Road_Elite_GR)
+       (typ_kola Gravel)
+       (provedeni_kol 28)
+       (cena 47999)
+ )
+  (kolo(vyrobce CANNONDALE)
+       (nazev TopStone_Carbon_2)
+       (typ_kola Gravel)
+       (provedeni_kol 28)
+       (cena 125999)
+ )
+)
+
+;*********************************************************************
+;PRAVIDLA (4 RULES)
+;*********************************************************************
+(defrule zadejteSvojiVysku
+  (declare (salience 10000))
+=>
+  (printout t "Jaka je vase vyska v cm (zaokrouhlete na cm)?" crlf)
+  (bind ?vyska (read))
+  (assert (vyska_cyklisty ?vyska))
+)
+
+(defrule zadejteJizdniPovrch
+  (declare (salience 9900))
+=>
+  (printout t "Na jakem povrchu jezdite? [SILNICE/LES/SILNICE_I_LES/SJEZDY]" crlf)
+  (bind ?povrch (read))
+  (assert (jizdni_povrch ?povrch))
+)
+
+(defrule zadejteBrasny
+  (declare (salience 9800))
+=>
+  (printout t "Potrebujete na svych cestach brasny na kole? (ANO/NE)" crlf)
+  (bind ?brasny (read))
+  (assert (potreba_brasen ?brasny))
+)
+
+;(defrule zadejteJestliChceteElektrokolo
+;  (declare (salience 9700))
+;=>
+;  (printout t "Chcete elektrokolo? (ANO/NE)" crlf)
+;  (bind ?elektrina (read))
+;  (assert (potreba_elektrokola ?elektrina))
+;)
+
+(defrule zadejteSvujRozpocet
+  (declare (salience 9600))
+=>
+  (printout t "Jaky je Vas rozpocet? (v Kc)" crlf)
+  (bind ?penize (read))
+  (assert (rozpocet ?penize))
+)
+
+
+
+;************************************************************************
+;Overeni vysky pro ram kola (6 RULES)
+;************************************************************************
+(defrule overeniRamu17
+  (declare (salience 9500))
+  (vyska_cyklisty ?v)
+  (test (<= ?v 165))
+=>
+  (bind ?ram 17)
+  (assert (vhodny_ram ?ram))
+  (printout t "Vase vhodna velikost ramu je: " ?ram crlf)
+)
+
+(defrule overeniRamu18
+  (declare (salience 9400))
+  (vyska_cyklisty ?v)
+  (and 
+    (test (> ?v 165))
+    (test (<= ?v 170))
+  )
+
+=>
+  (bind ?ram 18)
+  (assert (vhodny_ram ?ram))
+  (printout t "Vase vhodna velikost ramu je: " ?ram crlf)
+)
+
+(defrule overeniRamu19
+  (declare (salience 9300))
+  (vyska_cyklisty ?v)
+  (and 
+    (test (> ?v 170))
+    (test (<= ?v 175))
+  )
+=>
+  (bind ?ram 19)
+  (assert (vhodny_ram ?ram))
+  (printout t "Vase vhodna velikost ramu je: " ?ram crlf)
+)
+
+(defrule overeniRamu20
+  (declare (salience 9200))
+  (vyska_cyklisty ?v)
+  (and 
+    (test (> ?v 175))
+    (test (<= ?v 180))
+  )
+
+=>
+  (bind ?ram 20)
+  (assert (vhodny_ram ?ram))
+  (printout t "Vase vhodna velikost ramu je: " ?ram crlf)
+)
+
+(defrule overeniRamu21
+  (declare (salience 9100))
+  (vyska_cyklisty ?v)
+  (and 
+    (test (> ?v 180))
+    (test (<= ?v 185))
+  )
+
+=>
+  (bind ?ram 21)
+  (assert (vhodny_ram ?ram))
+  (printout t "Vase vhodna velikost ramu je: " ?ram crlf)
+)
+
+(defrule overeniRamu22
+  (declare (salience 9000))
+  (vyska_cyklisty ?v)
+  (test (> ?v 185)))
+=>
+  (bind ?ram 22)
+  (assert (vhodny_ram ?ram))
+  (printout t "Vase vhodna velikost ramu je: " ?ram crlf)
+)
+;****************************************************************
+; Vyber vhodneho typu kola (7)
+;****************************************************************
+(defrule nerozhodnyUzivatel
+  (declare (salience 8900))
+  (jizdni_povrch ?povrch)
+  (test (eq ?povrch SILNICE_I_LES))
+=>
+  (printout t "Jaky povrch prevazuje? [SILNICE/LES]" crlf)
+  (bind ?prevazuje (read))
+  (assert (prevazuje_povrch ?prevazuje))
+)
+
+(defrule vyberVhodnehoKolaDownhill
+  (declare (salience 8800))
+  (jizdni_povrch ?povrch)
+  (test (eq ?povrch SJEZDY))
+=>
+  (bind ?typ_kola DOWNHILL)
+  (assert (vhodny_typ_kola ?typ_kola))
+)
+
+(defrule vyberVhodnehoKolaSilnice
+  (declare (salience 8700))
+  (jizdni_povrch ?povrch)
+  (potreba_brasen ?brasny)
+  (test (eq ?povrch SILNICE))
+  (test (eq ?brasny NE))
+=>
+  (bind ?typ_kola SILNICNI)
+  (assert (vhodny_typ_kola ?typ_kola))
+)
+
+(defrule vyberVhodnehoKolaSilniceSBrasnou
+  (declare (salience 8600))
+  (jizdni_povrch ?povrch)
+  (potreba_brasen ?brasny)
+  (test (eq ?povrch SILNICE))
+  (test (eq ?brasny ANO))
+=>
+  (bind ?typ_kola GRAVEL)
+  (assert (vhodny_typ_kola ?typ_kola))
+)
+
+(defrule vyberVhodnehoKolaLes
+  (declare (salience 8500))
+  (jizdni_povrch ?povrch)
+  (test (eq ?povrch LES))
+=>
+  (bind ?typ_kola HORSKE)
+  (assert (vhodny_typ_kola ?typ_kola))
+)
+
+(defrule vyberVhodnehoKolaSilILesPrevazujeLes
+  (declare (salience 8400))
+  (jizdni_povrch ?povrch)
+  (prevazuje_povrch ?prevazuje)
+  (test (eq ?povrch SILNICE_I_LES))
+  (test (eq ?prevazuje LES))
+=>
+  (bind ?typ_kola HORSKE)
+  (assert (vhodny_typ_kola ?typ_kola))
+)
+
+(defrule vyberVhodnehoKolaSilILesPrevazujeSilnice
+  (declare (salience 8300))
+  (jizdni_povrch ?povrch)
+  (prevazuje_povrch ?prevazuje)
+  (test (eq ?povrch SILNICE_I_LES))
+  (test (eq ?prevazuje SILNICE))
+=>
+  (bind ?typ_kola GRAVEL)
+  (assert (vhodny_typ_kola ?typ_kola))
+)
+
+;********************************************************
+;	FINALNI VYBER KOLA (X RULES)
+;*********************************************************
+(defrule kontrolaRozpoctuHorske
+  (declare (salience 8200))
+  (vhodny_typ_kola ?typ_kola)
+  (rozpocet ?rozpocet_uzivatele)
+  (test (eq ?typ_kola HORSKE))
+  (test (< ?rozpocet_uzivatele 12499))
+=>
+  (printout t "Je nam lito, ale nemate dostatek penez, 
+nejlevnejsi HORSKE kolo je za 12 499,-Kc" crlf)
+  (printout t "Zde jsou jeho parametry: " crlf)
+;F-1
+)
+
+(defrule kontrolaRozpoctuDownhill
+  (declare (salience 8100))
+  (vhodny_typ_kola ?typ_kola)
+  (rozpocet ?rozpocet_uzivatele)
+  (test (eq ?typ_kola DOWNHILL))
+  (test (< ?rozpocet_uzivatele 46999))
+=>
+  (printout t "Je nam lito, ale nemate dostatek penez, 
+nejlevnejsi DOWNHILL kolo je za 46 999,-Kc" crlf)
+  (printout t "Zde jsou jeho parametry: " crlf)
+;F-7
+)
+
+(defrule kontrolaRozpoctuSilnicni
+  (declare (salience 8000))
+  (vhodny_typ_kola ?typ_kola)
+  (rozpocet ?rozpocet_uzivatele)
+  (test (eq ?typ_kola SILNICNI))
+  (test (< ?rozpocet_uzivatele 25999))
+=>
+  (printout t "Je nam lito, ale nemate dostatek penez, 
+nejlevnejsi SILNICNI kolo je za 25 999,-Kc" crlf)
+  (printout t "Zde jsou jeho parametry: " crlf)
+;F-12
+)
+
+(defrule kontrolaRozpoctuGravel
+  (declare (salience 7900))
+  (vhodny_typ_kola ?typ_kola)
+  (rozpocet ?rozpocet_uzivatele)
+  (test (eq ?typ_kola GRAVEL))
+  (test (< ?rozpocet_uzivatele 23999))
+=>
+  (printout t "Je nam lito, ale nemate dostatek penez,
+nejlevnejsi GRAVEL kolo je za 23 999,-Kc" crlf)
+  (printout t "Zde jsou jeho parametry: " crlf)
+;F-15
+)
