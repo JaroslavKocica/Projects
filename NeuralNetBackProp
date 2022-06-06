@@ -1,0 +1,145 @@
+import numpy as np
+import random 
+from random import seed
+from matplotlib import pyplot as plt
+seed(0)
+#y = tanh(x)
+#x = np.array([-0.5, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.5])
+#y = np.array([-0.462, -0.380, -0.291, -0.197, -0.1, 0.1, 0.197, 0.291, 0.380, 0.462])
+x = np.array([-2,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2])
+y = np.array([-0.96402758,-0.956237458,-0.946806013,-0.935409071,-0.921668554,-0.905148254,-0.885351648,-0.861723159,-0.833654607,-0.800499022,-0.761594156,-0.71629787,-0.66403677,-0.604367777,-0.537049567,-0.462117157,-0.379948962,-0.291312612,-0.19737532,-0.099667995,0,0.099667995,0.19737532,0.291312612,0.379948962,0.462117157,0.537049567,0.604367777,0.66403677,0.71629787,0.761594156,0.800499022,0.833654607,0.861723159,0.885351648,0.905148254,0.921668554,0.935409071,0.946806013,0.956237458,0.96402758])
+
+z1 = np.array([0.0, 0.0, 0.0,])
+z2 = np.array([0.0])
+h = np.array([0.0, 0.0, 0.0,])
+
+
+y_pred = 0.0
+w1 = np.random.uniform(-1, 1, 20)
+w2 = np.random.uniform(-1, 1, 20)
+b1 = np.random.uniform(-1, 1, 20)
+b2 = np.random.random(1)
+
+
+
+#Input to Hidden, vytvoří matici z1 pro dané X, které následně vstoupí do aktivační fce
+def z1_func(x_train, w1, b1, z1):
+    
+    z1 = np.dot(x_train, w1) + b1
+
+    return z1
+
+#hidden to output, vytvoří matici, která vstoupí do posledního layeru
+def z2_func(h, w2, b2):
+    z2 = np.dot(h, w2) + b2
+    return z2
+
+#def sigmoid(z):
+#    return 1/(1 + np.exp(-z))
+
+#def sigmoid_derivative(z):
+#    return np.exp(-1) / (1 + np.exp(-z))**2
+
+def tanh(z):
+    return np.tanh(z)
+
+def tanh_derivative(z):
+    return 1/np.power(np.cosh(z), 2)
+
+#Chybová funkce
+def MSE_func(y_pred, y_train):
+    return (y_train - y_pred)**2
+    
+def MSE_derivative_func(y_pred, y_train):
+    return 2*(y_train - y_pred)
+
+def forward(x_train, y_train, w1, w2, b1, b2, z1, z2):
+    z1 = z1_func(x_train, w1, b1, z1)
+    h = tanh(z1)
+    z2 = z2_func(h, w2, b2)
+    y_pred = tanh(z2)
+    MSE = MSE_func(y_pred, y_train)
+    
+    return z1, h, z2, y_pred, MSE
+
+
+
+def backward(y_pred, MSE, w1, w2, b1, b2, gradients):
+    w1 = w1 + 0.01 * gradients["W1"]
+    w2 = w2 + 0.01 * gradients["W2"]
+    b1 = b1 + 0.01 * gradients["b1"]
+    b2 = b2 + 0.01 * gradients["b2"]
+    return w1, w2, b1, b2
+
+
+        
+    
+def Gradients_func(x_train, y_train, y_pred, w1, w2, z1, z2, h):
+    dMSEdY = 2 * (y_train - y_pred)
+    dMSEdZ2 = np.multiply(dMSEdY, tanh_derivative(z2) )
+    dMSEdW2 = np.dot(h.T.reshape(20,1), dMSEdZ2)
+    dMSEdb2 = np.dot(dMSEdZ2.T, np.ones(1))
+    dMSEdH = np.dot(dMSEdZ2, w2.reshape(1,20))
+    dMSEdZ1 = np.multiply(dMSEdH.T, tanh_derivative(z1) )
+    dMSEdW1 = np.dot(dMSEdZ1, x_train)
+    dMSEdb1 = np.dot(dMSEdZ1.reshape(20,1), np.ones(1))
+
+    gradients = {
+        'W1': dMSEdW1,
+        'b1': dMSEdb1,
+        'W2': dMSEdW2,
+        'b2': dMSEdb2,
+    }
+    return gradients
+
+# Ověření funkčnosti gradientu
+#gradients = Gradients_func(x, y, y_pred, w1, w2, z1, z2, h)
+
+
+#print("\nGrad W1: ", gradients["W1"],"\nGrad W2: ",  gradients["W2"],"\nGrad b1: ",  gradients["b1"],"\nGrad b2: ",  gradients["b2"])
+
+def train(epochs, l_rate, x, y, b1, b2, w1, w2, z1, z2, MSE=99999):
+    epoch = 0
+    
+    
+    chyby = []
+    chyby_graf = []
+    while(epoch < epochs ):
+        for i in range(len(x)):
+            
+            x_train = x[i]
+            y_train = y[i]
+    
+            z1, h, z2, y_pred, MSE = forward(x_train, y_train, w1, w2, b1, b2, z1, z2) # forward
+            chyby.append(MSE)
+            
+            if (i == len(x)-1):
+                MSE_sum = np.sum(chyby)/10
+                chyby_graf.append(MSE_sum)
+                print("Epoch No ", epoch+1)
+                print("MSE", MSE_sum)
+                if (MSE_sum < 0.0001): epoch = epochs
+                for j in range(len(x)):
+                    x_print = x[j]
+                    y_print = y[j]
+                    z11, h11, z22, y_pred22, MSE11 = forward(x_print, y_print, w1, w2, b1, b2, z1, z2)
+                    print("x[{}]: {}\ty[{}]: {}\ty_pred[{}]: {}".format(j, x_print, j, y_print, j, y_pred22))
+                
+                   
+                    if (j==len(x)-1): 
+                        
+                        chyby.clear()    
+            
+            gradients = Gradients_func(x_train, y_train, y_pred, w1, w2, z1, z2, h) # Gradients
+            w1, w2, b1, b2 = backward(y_pred, MSE, w1, w2, b1, b2, gradients)
+        epoch += 1
+        if (epoch == epochs-1):
+            plt.plot(chyby_graf)
+            plt.ylabel("MSE")
+            plt.xlabel("Epoch")
+            plt.show()
+    return w1, w2, b1, b2, chyby
+     
+
+
+w1, w2, b1, b2, chyby = train(300, 0.01, x, y, b1, b2, w1, w2, z1, z2)
